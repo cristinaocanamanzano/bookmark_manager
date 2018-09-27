@@ -4,7 +4,7 @@ require 'uri'
 require 'sinatra/flash'
 
 class BookmarkManager < Sinatra::Base
-  enable :sessions
+  enable :sessions, :method_override
   register Sinatra::Flash
 
   get '/' do
@@ -27,6 +27,12 @@ class BookmarkManager < Sinatra::Base
       flash[:notice] = "Invalid URL"
       redirect '/bookmarks/new'
     end
+  end
+
+  delete '/bookmarks/:id' do
+    connection = PG.connect(dbname: 'bookmark_manager')
+    connection.exec("DELETE FROM bookmarks WHERE id = #{params[:id]}")
+    redirect '/bookmarks'
   end
 
   run! if app_file == $0
