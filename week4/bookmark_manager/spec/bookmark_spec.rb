@@ -5,25 +5,33 @@ describe Bookmark do
   describe '.all' do
     it 'returns all bookmarks' do
       connection = PG.connect(dbname: 'bookmark_manager_test')
-      connection.exec("INSERT INTO bookmarks (url) VALUES ('http://www.makersacademy.com');")
-      connection.exec("INSERT INTO bookmarks (url) VALUES ('http://www.google.com');")
-      connection.exec("INSERT INTO bookmarks (url) VALUES ('http://www.destroyallsoftware.com');")
+      Bookmark.create(url: 'http://www.makersacademy.com', title: "MakersAcademy")
+      Bookmark.create(url: 'http://www.google.com', title: "Google")
+      Bookmark.create(url: 'http://www.destroyallsoftware.com', title: "DestroyAll")
+
       bookmarks = Bookmark.all
-      expect(bookmarks).to include("http://www.makersacademy.com")
-      expect(bookmarks).to include("http://www.google.com")
-      expect(bookmarks).to include("http://www.destroyallsoftware.com")
+      bookmark = Bookmark.all.first
+
+      expect(bookmarks.length).to eq 3
+      expect(bookmark).to be_a Bookmark
+      expect(bookmark).to respond_to(:id)
+      expect(bookmark.title).to eq 'MakersAcademy'
+      expect(bookmark.url).to eq 'http://www.makersacademy.com'
     end
   end
 
   describe '.create' do
     it 'creates a new bookmark' do
-      Bookmark.create(url: 'http://www.testbookmark.com')
-      expect(Bookmark.all).to include 'http://www.testbookmark.com'
+      bookmark = Bookmark.create(url: 'http://www.testbookmark.com', title: 'TestBookmark')
+
+      expect(bookmark).to be_a Bookmark
+      expect(bookmark).to respond_to(:id)
+      expect(bookmark.title).to eq "TestBookmark"
     end
 
     it 'does not create a new bookmark if the URL is ot valid' do
-      Bookmark.create(url: 'lalala')
-      expect(Bookmark.all).not_to include 'lalala'
+      bookmark = Bookmark.create(url: 'lalala', title: 'lalala')
+      expect(Bookmark.all).not_to be_a Bookmark
     end
   end
 end
